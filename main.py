@@ -1,8 +1,8 @@
 import streamlit as st
 import pickle
 import requests
-from config import API_KEY
 
+API_KEY = "7d0136ba305c1a8de63a31a89f39faee"
 base_url = 'https://api.themoviedb.org/3/'
 
 with open('myarray.pkl', 'rb') as file:
@@ -10,6 +10,7 @@ with open('myarray.pkl', 'rb') as file:
 
 with open('movie_data.pkl', 'rb') as file:
     movie_data = pickle.load(file)
+
 
 with open('indices.pkl', 'rb') as file:
     indices = pickle.load(file)
@@ -22,43 +23,40 @@ def get_recommendation(title, cosine=sig):
 
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
 
-    sim_scores = sim_scores[1:15]
+    sim_scores = sim_scores[1:11]
 
     movie_indices = [i[0] for i in sim_scores]
 
     return movie_data['original_title'].iloc[movie_indices]
 
 
-st.header("CHRISTIAN MOVIES RECOMMENDATION")
+recommended_movies = get_recommendation('The Exorcist',  sig)
+
+st.header("CHRISTAIN MOVIES RECOMMENNDATION")
 movie_list = movie_data['original_title'].values
 
 selected_movie = st.selectbox(
     'Type or select a movie to get a recommendation', movie_list)
 
+
 if st.button('Show recommendations'):
     recommended_movies = get_recommendation(selected_movie)
-
     for movie_id, movie_title in recommended_movies.items():
         selected_row = movie_data.loc[movie_data.index == movie_id]
+        movie_id = selected_row['id'].values[0]
+        url = f'{base_url}movie/{movie_id}?api_key={API_KEY}'
+        response = requests.get(url)
+        data = response.json()
 
-        if not selected_row.empty and not selected_row['backdrop_path'].isnull().values[0]:
-            poster_path = selected_row['backdrop_path'].values[0]
+        poster_path = data.get('poster_path')
+
+        if poster_path:
 
             poster_url = f'https://image.tmdb.org/t/p/w500{poster_path}'
 
-            st.image(poster_url, caption=f'Movie ID: {movie_id}', width=100)
-            st.write(f"**Overview:** {selected_row['overview'].values[0]}")
-            st.write(
-                f"**Average Vote:** {selected_row['vote_average'].values[0]}")
-            st.write(
-                f"**Genres:** {selected_row['genres'].values[0]}")
-            st.write('\n---')
-        else:
             st.header(movie_title)
-            st.warning(f'No image available for "{movie_title}"')
-            st.write(f"**Overview:** {selected_row['overview'].values[0]}")
-            st.write(
-                f"**Average Vote:** {selected_row['vote_average'].values[0]}")
-            st.write(
-                f"**Genres:** {selected_row['genres'].values[0]}")
+            st.image(
+                poster_url, caption=f'Movie ID: {movie_id}', width=200)
+            st.write(f"**Overview:** {data.get('overview')}")
+            st.write(f"**Average Vote:** {data.get('vote_average')}")
             st.write('\n---')
