@@ -44,9 +44,10 @@ if st.button('Show recommendations'):
     for movie_id, movie_title in recommended_movies.items():
         selected_row = movie_data.loc[movie_data['id'] == movie_id]
 
-        poster_path = selected_row['backdrop_path'].values[0]
+       
+        if selected_row['backdrop_path'].values[0]:
+            poster_path = selected_row['backdrop_path'].values[0]
 
-        if poster_path:
 
             poster_url = f'https://image.tmdb.org/t/p/w500{poster_path}'
 
