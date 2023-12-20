@@ -11,7 +11,6 @@ with open('myarray.pkl', 'rb') as file:
 with open('movie_data.pkl', 'rb') as file:
     movie_data = pickle.load(file)
 
-
 with open('indices.pkl', 'rb') as file:
     indices = pickle.load(file)
 
@@ -30,30 +29,32 @@ def get_recommendation(title, cosine=sig):
     return movie_data['original_title'].iloc[movie_indices]
 
 
-recommended_movies = get_recommendation('The Exorcist',  sig)
-
-st.header("CHRISTAIN MOVIES RECOMMENNDATION")
+st.header("CHRISTIAN MOVIES RECOMMENDATION")
 movie_list = movie_data['original_title'].values
 
 selected_movie = st.selectbox(
     'Type or select a movie to get a recommendation', movie_list)
 
-
 if st.button('Show recommendations'):
     recommended_movies = get_recommendation(selected_movie)
+
     for movie_id, movie_title in recommended_movies.items():
-        selected_row = movie_data.loc[movie_data['id'] == movie_id]
+        selected_row = movie_data.loc[movie_data.index == movie_id]
 
-       
-        if selected_row['backdrop_path'].values[0]:
+        if not selected_row.empty and not selected_row['backdrop_path'].isnull().values[0]:
             poster_path = selected_row['backdrop_path'].values[0]
-
 
             poster_url = f'https://image.tmdb.org/t/p/w500{poster_path}'
 
             st.header(movie_title)
-            st.image(
-                poster_url, caption=f'Movie ID: {movie_id}', width=100)
+            st.image(poster_url, caption=f'Movie ID: {movie_id}', width=100)
             st.write(f"**Overview:** {selected_row['overview'].values[0]}")
-            st.write(f"**Average Vote:** {selected_row['vote_average'].values[0]}")
+            st.write(
+                f"**Average Vote:** {selected_row['vote_average'].values[0]}")
+            st.write('\n---')
+        else:
+            st.warning(f'No image available for "{movie_title}"')
+            st.write(f"**Overview:** {selected_row['overview'].values[0]}")
+            st.write(
+                f"**Average Vote:** {selected_row['vote_average'].values[0]}")
             st.write('\n---')
