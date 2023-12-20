@@ -22,7 +22,7 @@ def get_recommendation(title, cosine=sig):
 
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
 
-    sim_scores = sim_scores[1:11]
+    sim_scores = sim_scores[1:15]
 
     movie_indices = [i[0] for i in sim_scores]
 
@@ -46,15 +46,19 @@ if st.button('Show recommendations'):
 
             poster_url = f'https://image.tmdb.org/t/p/w500{poster_path}'
 
-            st.header(movie_title)
             st.image(poster_url, caption=f'Movie ID: {movie_id}', width=100)
             st.write(f"**Overview:** {selected_row['overview'].values[0]}")
             st.write(
                 f"**Average Vote:** {selected_row['vote_average'].values[0]}")
+            st.write(
+                f"**Genres:** {selected_row['genres'].values[0]}")
             st.write('\n---')
         else:
+            st.header(movie_title)
             st.warning(f'No image available for "{movie_title}"')
             st.write(f"**Overview:** {selected_row['overview'].values[0]}")
             st.write(
                 f"**Average Vote:** {selected_row['vote_average'].values[0]}")
+            st.write(
+                f"**Genres:** {selected_row['genres'].values[0]}")
             st.write('\n---')
