@@ -42,11 +42,9 @@ selected_movie = st.selectbox(
 if st.button('Show recommendations'):
     recommended_movies = get_recommendation(selected_movie)
     for movie_id, movie_title in recommended_movies.items():
-        url = f'{base_url}movie/{movie_id}?api_key={API_KEY}'
-        response = requests.get(url)
-        data = response.json()
+        selected_row = movie_data.loc[movie_data['id'] == movie_id]
 
-        poster_path = data.get('poster_path')
+        poster_path = selected_row['backdrop_path'].values[0]
 
         if poster_path:
 
@@ -55,6 +53,6 @@ if st.button('Show recommendations'):
             st.header(movie_title)
             st.image(
                 poster_url, caption=f'Movie ID: {movie_id}', width=100)
-            st.write(f"**Overview:** {data.get('overview')}")
-            st.write(f"**Average Vote:** {data.get('vote_average')}")
+            st.write(f"**Overview:** {selected_row['overview'].values[0]}")
+            st.write(f"**Average Vote:** {selected_row['vote_average'].values[0]}")
             st.write('\n---')
